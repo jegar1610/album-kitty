@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hello Kitty Collector Ultra v10.4</title>
+    <title>Hello Kitty Collector Ultra v10.5</title>
     
     <meta name="theme-color" content="#e60012">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -27,16 +27,15 @@
             --card-green: #c6f6d5; 
             --card-green-border: #48bb78;
             
-            /* Escala de colores extendida para repetidas (+1 a +5) */
-            --card-rep-1: #feebc8; /* Amarillo */
+            --card-rep-1: #feebc8; 
             --card-rep-1-border: #ed8936;
-            --card-rep-2: #fbd38d; /* Naranja */
+            --card-rep-2: #fbd38d; 
             --card-rep-2-border: #dd6b20;
-            --card-rep-3: #fed7d7; /* Rosa */
+            --card-rep-3: #fed7d7; 
             --card-rep-3-border: #e53e3e;
-            --card-rep-4: #e9d8fd; /* Morado/Violeta */
+            --card-rep-4: #e9d8fd; 
             --card-rep-4-border: #9f7aea;
-            --card-rep-maximum: #feb2b2; /* Rojo Intenso */
+            --card-rep-maximum: #feb2b2; 
             --card-rep-maximum-border: #9b2c2c;
             
             --bow-missing: #94a3b8;
@@ -107,17 +106,17 @@
         .recent-tag { background: var(--accent-light); color: var(--accent); padding: 2px 6px; border-radius: 6px; font-weight: bold; }
 
         .search-filter-box { background: var(--container-bg); border-radius: var(--border-radius); padding: 12px; box-shadow: var(--shadow); margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .search-input { width: 100%; padding: 12px 16px; border: 2px solid var(--accent); border-radius: 30px; background: var(--bg-color); color: var(--text-color); font-size: 15px; outline: none; }
+        .search-input { width: 100%; padding: 12px 16px; border: 2px solid var(--accent); border-radius: 30px; background: var(--bg-color); color: var(--text-color); font-size: 15px; outline: none; -webkit-user-select: text !important; user-select: text !important; }
         
-        .section-title-banner { font-size: 14px; font-weight: bold; color: var(--accent); text-align: center; background: var(--accent-light); padding: 6px; border-radius: 10px; margin-bottom: 5px; text-transform: uppercase; }
-        [data-theme="dark"] .section-title-banner { background: #1e293b; color: #38bdf8; }
+        /* Estilos del menú desplegable elegante */
+        .dropdown-container { width: 100%; display: flex; flex-direction: column; gap: 4px; margin-top: 2px; }
+        .dropdown-label { font-size: 11px; font-weight: bold; color: var(--accent); text-transform: uppercase; padding-left: 4px; }
+        .select-dropdown { width: 100%; padding: 12px 16px; border: 2px solid var(--accent); border-radius: 25px; background: var(--bg-color); color: var(--text-color); font-size: 14px; font-weight: 600; outline: none; cursor: pointer; }
 
-        .filter-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
+        .filter-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
         .filter-scroll::-webkit-scrollbar { display: none; }
         .filter-btn { white-space: nowrap; padding: 8px 16px; border: none; border-radius: 20px; background: var(--bg-color); color: var(--text-color); font-weight: 600; font-size: 11px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .filter-btn.active { background: var(--accent); color: #ffffff; }
-        .filter-btn.series-btn { background: var(--container-bg); border: 1px solid var(--accent); color: var(--text-color); }
-        .filter-btn.series-btn.active { background: var(--primary); color: #ffffff; border-color: var(--primary); }
 
         .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 
@@ -130,7 +129,6 @@
         .card:active { transform: scale(0.95); }
         .card.obtained { background-color: var(--card-green); border-color: var(--card-green-border); }
         
-        /* Escala visual de repetidas */
         .card.rep-level-1 { background-color: var(--card-rep-1) !important; border-color: var(--card-rep-1-border) !important; }
         .card.rep-level-2 { background-color: var(--card-rep-2) !important; border-color: var(--card-rep-2-border) !important; }
         .card.rep-level-3 { background-color: var(--card-rep-3) !important; border-color: var(--card-rep-3-border) !important; }
@@ -143,7 +141,6 @@
         .card.obtained .bow-main { fill: var(--bow-obtained); opacity: 1; }
         .card.obtained .bow-center { stroke: #4a0006; opacity: 1; }
         
-        /* Ajuste de color del moño según el nivel de alerta */
         .card.rep-level-1 .bow-main { fill: var(--bow-repeated); }
         .card.rep-level-2 .bow-main { fill: #dd6b20; }
         .card.rep-level-3 .bow-main { fill: #e53e3e; }
@@ -163,7 +160,6 @@
         [data-theme="dark"] .card.obtained .card-num, [data-theme="dark"] .card[class*="rep-level-"] .card-num { color: #ffffff; }
 
         .card-rep-badge { background: var(--primary); color: white; font-size: 9px; min-width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; padding: 0 3px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
-        .card.rep-level-max .card-rep-badge { background: #7f1d1d; }
 
         .view-section { display: none; }
         .view-section.active-view { display: block; }
@@ -230,10 +226,18 @@
             </div>
 
             <div class="search-filter-box">
-                <input type="text" class="search-input" id="search-input" placeholder="🔍 Buscar por número o palabra clave...">
+                <input type="text" class="search-input" id="search-input" placeholder="🔍 Buscar por número en bloque activo...">
+                
+                <!-- Subfiltros de estado (Todas, Obtenidas, Faltantes, Repetidas) -->
                 <div class="filter-scroll" id="status-filter-container"></div>
-                <div class="section-title-banner" id="section-title-banner">Colección: HELLO KITTY</div>
-                <div class="filter-scroll" id="collection-filter-container"></div>
+                
+                <!-- Función Solicitada: Lista Desplegable (Dropdown) de Colecciones -->
+                <div class="dropdown-container">
+                    <span class="dropdown-label">Filtrar por Colección:</span>
+                    <select class="select-dropdown" id="collection-dropdown" onchange="handleDropdownChange()">
+                        <!-- Se llena dinámicamente con JavaScript -->
+                    </select>
+                </div>
             </div>
 
             <div class="cards-grid" id="cards-grid"></div>
@@ -249,7 +253,7 @@
 
             <div class="panel-box" style="border-top: 5px solid var(--accent);">
                 <div class="panel-title" id="trade-missing-title">🔍 Mi Lista de Faltantes</div>
-                <p style="font-size:10px; color:var(--text-muted); margin-bottom:6px;">* Esta lista cambia según la serie que tengas abierta en la pestaña de colección.</p>
+                <p style="font-size:10px; color:var(--text-muted); margin-bottom:6px;">* Esta lista cambia dinámicamente según la colección que selecciones en el menú desplegable.</p>
                 <textarea class="trade-textarea" id="missing-text" readonly style="border-color: var(--accent);"></textarea>
                 <button class="btn-action btn-secondary" id="btn-copy-missing" onclick="copyMissingList()">📋 Copiar Faltantes para WhatsApp</button>
             </div>
@@ -277,7 +281,7 @@
             </div>
 
             <div class="panel-box">
-                <div class="panel-title">⚙️ Preferences</div>
+                <div class="panel-title">⚙️ Preferencias</div>
                 <div class="setting-row">
                     <span>Modo Oscuro</span>
                     <label class="switch">
@@ -314,7 +318,7 @@
         const BASE_TOTAL = 227; 
         let collectionData = [];
         let currentFilter = 'all'; 
-        let currentCollection = 'HELLO KITTY'; 
+        let currentCollection = 'all'; // 'all' por defecto para mostrar TODO al iniciar
         let startDate = null;
         let recentChanges = [];
 
@@ -348,6 +352,7 @@
             loadSavedData();
             initTheme();
             buildFilterButtons();
+            populateDropdown();
             renderGrid();
             updateDashboard();
             calculateDays();
@@ -381,7 +386,6 @@
 
         function buildFilterButtons() {
             const statusContainer = document.getElementById('status-filter-container');
-            const collectionContainer = document.getElementById('collection-filter-container');
             
             statusContainer.innerHTML = `
                 <button class="filter-btn ${currentFilter === 'all'?'active':''}" onclick="setStatusFilter('all', this)">Todas</button>
@@ -389,19 +393,19 @@
                 <button class="filter-btn ${currentFilter === 'missing'?'active':''}" onclick="setStatusFilter('missing', this)">Faltantes</button>
                 <button class="filter-btn ${currentFilter === 'repeated'?'active':''}" onclick="setStatusFilter('repeated', this)">Repetidas</button>
             `;
+        }
 
-            collectionContainer.innerHTML = '';
+        // Llena la lista desplegable dinámicamente con los contadores correctos
+        function populateDropdown() {
+            const dropdown = document.getElementById('collection-dropdown');
+            dropdown.innerHTML = `<option value="all">✨ Ver Todas las Colecciones (${collectionData.length})</option>`;
+            
             COLLECTIONS.forEach(col => {
                 const subSet = collectionData.filter(c => c.type === col.name);
                 const subObt = subSet.filter(c => c.obtained).length;
-                const subTotal = subSet.length;
-                
-                const btn = document.createElement('button');
-                btn.className = `filter-btn series-btn ${currentCollection === col.name ? 'active' : ''}`;
-                btn.innerText = `${col.name} (${subObt}/${subTotal})`;
-                btn.onclick = () => setCollectionFilter(col.name, btn);
-                collectionContainer.appendChild(btn);
+                dropdown.innerHTML += `<option value="${col.name}">📂 ${col.name} (${subObt}/${subSet.length})</option>`;
             });
+            dropdown.value = currentCollection;
         }
 
         function calculateDays() {
@@ -414,7 +418,7 @@
             const exists = collectionData.some(c => c.name.toLowerCase() === name.toLowerCase()); if (exists) { alert("Esa carta ya existe."); return; }
             const nextId = collectionData.length > 0 ? Math.max(...collectionData.map(c => c.id)) + 1 : 1;
             collectionData.push({ id: nextId, name: name, type: 'EXTRA ➕', obtained: false, copies: 0 });
-            saveToStorage(); input.value = ''; buildFilterButtons(); renderGrid(); updateDashboard();
+            saveToStorage(); input.value = ''; populateDropdown(); renderGrid(); updateDashboard();
             alert(`¡Carta "${name}" agregada a Extras!`);
         }
 
@@ -447,7 +451,7 @@
                     }
                 }
                 logRecentChange(collectionData[idx].name);
-                saveToStorage(); buildFilterButtons(); renderGrid(); updateDashboard();
+                saveToStorage(); populateDropdown(); renderGrid(); updateDashboard();
             }
         }
 
@@ -458,7 +462,7 @@
                 collectionData[idx].obtained = false; 
                 collectionData[idx].copies = 0; 
                 logRecentChange(collectionData[idx].name + " (Borrada)");
-                saveToStorage(); buildFilterButtons(); renderGrid(); updateDashboard(); 
+                saveToStorage(); populateDropdown(); renderGrid(); updateDashboard(); 
             }
             return false;
         }
@@ -468,7 +472,8 @@
             const query = document.getElementById('search-input').value.toLowerCase().trim();
 
             collectionData.forEach(card => {
-                if (card.type !== currentCollection) return;
+                // Validación del Dropdown Desplegable: si no es 'all', filtra la serie elegida
+                if (currentCollection !== 'all' && card.type !== currentCollection) return;
 
                 if (query) {
                     if (query === 'repetidas' || query === 'repetida') { if (card.copies === 0) return; } 
@@ -484,18 +489,11 @@
                 const cardEl = document.createElement('div'); cardEl.className = 'card';
                 if (card.obtained) cardEl.classList.add('obtained');
                 
-                // 🎀 Lógica extendida de colores para repetidas
-                if (card.copies === 1) {
-                    cardEl.classList.add('rep-level-1');
-                } else if (card.copies === 2) {
-                    cardEl.classList.add('rep-level-2');
-                } else if (card.copies === 3) {
-                    cardEl.classList.add('rep-level-3');
-                } else if (card.copies === 4) {
-                    cardEl.classList.add('rep-level-4');
-                } else if (card.copies >= 5) {
-                    cardEl.classList.add('rep-level-max');
-                }
+                if (card.copies === 1) { cardEl.classList.add('rep-level-1'); } 
+                else if (card.copies === 2) { cardEl.classList.add('rep-level-2'); } 
+                else if (card.copies === 3) { cardEl.classList.add('rep-level-3'); } 
+                else if (card.copies === 4) { cardEl.classList.add('rep-level-4'); } 
+                else if (card.copies >= 5) { cardEl.classList.add('rep-level-max'); }
 
                 cardEl.onclick = (e) => { e.preventDefault(); handleCardClick(card.id); };
                 cardEl.oncontextmenu = (e) => { e.preventDefault(); handleCardLongPress(card.id, e); return false; };
@@ -558,11 +556,18 @@
             renderGrid();
         }
 
-        function setCollectionFilter(collectionName, btn) {
-            currentCollection = collectionName;
-            document.getElementById('section-title-banner').innerText = `Colección: ${collectionName}`;
-            document.querySelectorAll('#collection-filter-container .series-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+        // Escucha los cambios del menú desplegable
+        function handleDropdownChange() {
+            const dropdown = document.getElementById('collection-dropdown');
+            currentCollection = dropdown.value;
+            
+            // Actualiza el banner de título según lo seleccionado
+            const banner = document.getElementById('section-title-banner');
+            if(currentCollection === 'all') {
+                banner.innerText = "Colección: TODAS LAS SERIES VISIBLES";
+            } else {
+                banner.innerText = `Colección: ${currentCollection}`;
+            }
             renderGrid();
         }
 
@@ -577,15 +582,26 @@
 
             const txtMiss = document.getElementById('missing-text'); 
             const lblTitle = document.getElementById('trade-missing-title');
-            let filteredMissing = collectionData.filter(c => !c.obtained && c.type === currentCollection);
+            
+            let filteredMissing = [];
+            let labelContext = "";
 
-            lblTitle.innerText = `🔍 Mi Lista de Faltantes (SERIE: ${currentCollection})`;
+            // La lista de faltantes hereda automáticamente el filtro del dropdown desplegable
+            if(currentCollection === 'all') {
+                filteredMissing = collectionData.filter(c => !c.obtained);
+                labelContext = "TODAS LAS SERIES";
+            } else {
+                filteredMissing = collectionData.filter(c => !c.obtained && c.type === currentCollection);
+                labelContext = `SERIE ${currentCollection}`;
+            }
+
+            lblTitle.innerText = `🔍 Mi Lista de Faltantes (${labelContext})`;
 
             if (filteredMissing.length === 0) { 
-                txtMiss.value = `¡Genial! No te falta ninguna carta de la serie [${currentCollection}]. 🎉`; 
+                txtMiss.value = `¡Genial! No te falta ninguna carta en el bloque activo [${labelContext}]. 🎉`; 
             } else {
-                let outMiss = `¡Hola! Estas son las cartas que me FALTAN de la serie [${currentCollection}] para completar mi álbum de Hello Kitty:\n\n`;
-                filteredMissing.forEach(c => { outMiss += `• Carta #${c.name}\n`; });
+                let outMiss = `¡Hola! Estas son las cartas que me FALTAN de la [${labelContext}] para completar mi álbum de Hello Kitty:\n\n`;
+                filteredMissing.forEach(c => { outMiss += `• Carta #${c.name} [${c.type}]\n`; });
                 txtMiss.value = outMiss;
             }
         }
@@ -601,11 +617,12 @@
         }
 
         function exportCollection() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ version: "10.4", startDate: startDate, cards: collectionData }));
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ version: "10.5", startDate: startDate, cards: collectionData }));
             const dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "kitty_album_v10_backup.json");
             document.body.appendChild(dl); dl.click(); dl.remove();
         }
 
+        document.getElementById('file-input').addEventListener('change', importCollection);
         function triggerImport() { document.getElementById('file-input').click(); }
 
         function importCollection(e) {
@@ -616,7 +633,7 @@
                     const parsed = JSON.parse(evt.target.result);
                     if (parsed && Array.isArray(parsed.cards)) {
                         collectionData = parsed.cards; if(parsed.startDate) startDate = parsed.startDate;
-                        saveToStorage(); buildFilterButtons(); renderGrid(); updateDashboard(); calculateDays();
+                        saveToStorage(); buildFilterButtons(); populateDropdown(); renderGrid(); updateDashboard(); calculateDays();
                         alert("¡Colección restaurada! ✨");
                     }
                 } catch (err) { alert("Error al leer el archivo."); }
@@ -629,7 +646,7 @@
                 localStorage.removeItem('hk_ultra_album_v10');
                 startDate = new Date().toISOString(); localStorage.setItem('hk_ultra_date_v10', startDate);
                 recentChanges = []; logRecentChange("");
-                generateInitialDatabase(); saveToStorage(); buildFilterButtons(); renderGrid(); updateDashboard(); calculateDays();
+                generateInitialDatabase(); saveToStorage(); buildFilterButtons(); populateDropdown(); renderGrid(); updateDashboard(); calculateDays();
                 alert("Álbum limpio.");
             }
         }
