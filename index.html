@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hello Kitty Collector Ultra v10.5</title>
+    <title>Hello Kitty Collector Classic v10.8</title>
     
     <meta name="theme-color" content="#e60012">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,8 +13,11 @@
 
     <style>
         :root {
-            --bg-color: #e3f2fd; 
-            --container-bg: #ffffff;
+            /* Patrón de puntos temático para Modo Claro */
+            --bg-color: #f7fafc;
+            --dot-color: #fce8e6; /* Puntitos rosa Sanrio muy sutiles */
+            --container-bg: rgba(255, 255, 255, 0.92); /* Un toque traslúcido elegante */
+            
             --text-color: #1a1a1a;
             --text-muted: #666666;
             --primary: #e60012; 
@@ -43,17 +46,20 @@
             --bow-repeated: #ffcc00;
             
             --border-radius: 20px;
-            --shadow: 0 8px 24px rgba(0, 92, 178, 0.12);
+            --shadow: 0 8px 24px rgba(230, 0, 18, 0.06);
             --transition: all 0.2s ease;
         }
 
         [data-theme="dark"] {
-            --bg-color: #0d1b2a;
-            --container-bg: #1b263b;
+            /* Patrón de puntos temático para Modo Oscuro */
+            --bg-color: #0f172a;
+            --dot-color: #1e293b; /* Puntitos oscuros discretos */
+            --container-bg: rgba(30, 41, 59, 0.92);
+            
             --text-color: #f5f5f5;
             --text-muted: #8d99ae;
             --primary: #ff3344;
-            --accent: #415a77;
+            --accent: #38bdf8;
             
             --card-gray: #1e293b;
             --card-gray-border: #475569;
@@ -72,6 +78,7 @@
             --card-rep-maximum-border: #f87171;
             
             --bow-missing: #475569;
+            --shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
         }
 
         * {
@@ -82,14 +89,27 @@
             -webkit-user-select: none !important; user-select: none !important;
         }
 
-        body { background-color: var(--bg-color); color: var(--text-color); transition: var(--transition); padding-bottom: 90px; font-size: 14px; }
+        body { 
+            background-color: var(--bg-color);
+            /* Generación del patrón de puntos Polka Dot sin imágenes pesadas */
+            background-image: radial-gradient(var(--dot-color) 15%, transparent 16%), radial-gradient(var(--dot-color) 15%, transparent 16%);
+            background-size: 24px 24px;
+            background-position: 0 0, 12px 12px;
+            
+            color: var(--text-color); 
+            transition: background-color 0.2s ease, background-image 0.2s ease; 
+            padding-bottom: 90px; 
+            font-size: 14px; 
+        }
+        
         .app-container { max-width: 600px; margin: 0 auto; padding: 15px; }
         header { text-align: center; padding: 20px 0 10px 0; }
-        h1 { font-size: 24pt; color: var(--primary); text-shadow: 2px 2px 0px rgba(255, 255, 255, 0.8); font-weight: 800; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        h1 { font-size: 24pt; color: var(--primary); text-shadow: 2px 2px 0px rgba(255, 255, 255, 0.9); font-weight: 800; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        [data-theme="dark"] h1 { text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5); }
         h1::before, h1::after { content: '🎀'; font-size: 16pt; }
-        .header-meta { font-size: 11px; color: var(--accent); font-weight: bold; background: var(--container-bg); padding: 4px 14px; border-radius: 20px; display: inline-block; box-shadow: var(--shadow); margin-top: 5px; border: 1px solid var(--accent-light); }
-        .tip-banner { background: var(--container-bg); color: var(--text-muted); font-size: 11px; text-align: center; padding: 8px; border-radius: 12px; margin-bottom: 15px; box-shadow: var(--shadow); border-left: 4px solid var(--details-yellow); }
-        .dashboard { background: var(--container-bg); border-radius: var(--border-radius); padding: 15px; box-shadow: var(--shadow); margin-bottom: 15px; border-top: 5px solid var(--primary); }
+        .header-meta { font-size: 11px; color: var(--primary); font-weight: bold; background: var(--container-bg); padding: 5px 16px; border-radius: 20px; display: inline-block; box-shadow: var(--shadow); margin-top: 5px; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); border: 1px solid var(--dot-color); }
+        .tip-banner { background: var(--container-bg); color: var(--text-muted); font-size: 11px; text-align: center; padding: 8px; border-radius: 12px; margin-bottom: 15px; box-shadow: var(--shadow); border-left: 4px solid var(--details-yellow); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); }
+        .dashboard { background: var(--container-bg); border-radius: var(--border-radius); padding: 15px; box-shadow: var(--shadow); margin-bottom: 15px; border-top: 5px solid var(--primary); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); }
         
         .progress-container { background: #e2e8f0; border-radius: 10px; height: 18px; overflow: hidden; position: relative; margin-bottom: 15px; }
         [data-theme="dark"] .progress-container { background: #475569; }
@@ -98,35 +118,31 @@
         [data-theme="dark"] .progress-text { color: #fff; }
 
         .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .stat-box { text-align: center; padding: 8px; background: var(--bg-color); border-radius: 12px; }
-        .stat-val { font-size: 14px; font-weight: bold; color: var(--accent); }
+        .stat-box { text-align: center; padding: 8px; background: var(--bg-color); border-radius: 12px; border: 1px solid var(--dot-color); }
+        .stat-val { font-size: 14px; font-weight: bold; color: var(--primary); }
+        [data-theme="dark"] .stat-val { color: var(--accent); }
         .stat-lbl { font-size: 9px; color: var(--text-muted); text-transform: uppercase; margin-top: 2px; }
 
         .recent-box { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--card-gray-border); font-size: 11px; color: var(--text-muted); display: flex; gap: 6px; align-items: center; justify-content: center; }
-        .recent-tag { background: var(--accent-light); color: var(--accent); padding: 2px 6px; border-radius: 6px; font-weight: bold; }
+        .recent-tag { background: var(--accent-light); color: #005cb2; padding: 2px 6px; border-radius: 6px; font-weight: bold; }
+        [data-theme="dark"] .recent-tag { background: #1e293b; color: var(--accent); }
 
-        .search-filter-box { background: var(--container-bg); border-radius: var(--border-radius); padding: 12px; box-shadow: var(--shadow); margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .search-filter-box { background: var(--container-bg); border-radius: var(--border-radius); padding: 12px; box-shadow: var(--shadow); margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); }
         .search-input { width: 100%; padding: 12px 16px; border: 2px solid var(--accent); border-radius: 30px; background: var(--bg-color); color: var(--text-color); font-size: 15px; outline: none; -webkit-user-select: text !important; user-select: text !important; }
         
-        /* Estilos del menú desplegable elegante */
-        .dropdown-container { width: 100%; display: flex; flex-direction: column; gap: 4px; margin-top: 2px; }
-        .dropdown-label { font-size: 11px; font-weight: bold; color: var(--accent); text-transform: uppercase; padding-left: 4px; }
-        .select-dropdown { width: 100%; padding: 12px 16px; border: 2px solid var(--accent); border-radius: 25px; background: var(--bg-color); color: var(--text-color); font-size: 14px; font-weight: 600; outline: none; cursor: pointer; }
-
         .filter-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
         .filter-scroll::-webkit-scrollbar { display: none; }
-        .filter-btn { white-space: nowrap; padding: 8px 16px; border: none; border-radius: 20px; background: var(--bg-color); color: var(--text-color); font-weight: 600; font-size: 11px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .filter-btn.active { background: var(--accent); color: #ffffff; }
+        .filter-btn { white-space: nowrap; padding: 8px 16px; border: none; border-radius: 20px; background: var(--bg-color); color: var(--text-color); font-weight: 600; font-size: 11px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid var(--dot-color); }
+        .filter-btn.active { background: var(--accent); color: #ffffff; border-color: var(--accent); }
 
         .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 
         .card {
             aspect-ratio: 1 / 1; background: var(--card-gray); border: 2px solid var(--card-gray-border); border-radius: 16px;
             display: flex; flex-direction: column; justify-content: space-between; align-items: center;
-            position: relative; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.03); 
+            position: relative; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.02); 
             padding: 10px 6px 6px 6px; text-align: center; transition: var(--transition); cursor: pointer;
         }
-        .card:active { transform: scale(0.95); }
         .card.obtained { background-color: var(--card-green); border-color: var(--card-green-border); }
         
         .card.rep-level-1 { background-color: var(--card-rep-1) !important; border-color: var(--card-rep-1-border) !important; }
@@ -163,7 +179,7 @@
 
         .view-section { display: none; }
         .view-section.active-view { display: block; }
-        .panel-box { background: var(--container-bg); border-radius: var(--border-radius); padding: 18px; box-shadow: var(--shadow); margin-bottom: 15px; }
+        .panel-box { background: var(--container-bg); border-radius: var(--border-radius); padding: 18px; box-shadow: var(--shadow); margin-bottom: 15px; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); }
         .panel-title { font-size: 16px; font-weight: bold; color: var(--primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
         .trade-textarea { width: 100%; height: 120px; border: 2px solid var(--accent); background: var(--bg-color); color: var(--text-color); border-radius: 12px; padding: 10px; font-family: monospace; resize: none; outline: none; margin-bottom: 12px; }
 
@@ -184,13 +200,27 @@
         input:checked + .slider { background-color: var(--primary); }
         input:checked + .slider:before { transform: translateX(20px); }
 
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background: var(--container-bg); box-shadow: 0 -4px 16px rgba(0,0,0,0.08); display: flex; justify-content: space-around; align-items: center; z-index: 99; padding-bottom: env(safe-area-inset-bottom); }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background: var(--container-bg); box-shadow: 0 -4px 16px rgba(0,0,0,0.08); display: flex; justify-content: space-around; align-items: center; z-index: 99; padding-bottom: env(safe-area-inset-bottom); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
         .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); background: none; border: none; font-size: 11px; font-weight: 600; width: 25%; height: 100%; cursor: pointer; }
         .nav-item.active { color: var(--primary); }
         .nav-icon { font-size: 20px; margin-bottom: 2px; }
 
         .celebration-overlay { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(255,255,255,0.9); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; }
         .celebration-overlay.active { opacity: 1; pointer-events: auto; }
+        
+        /* DIÁLOGO (MODAL) SEGURO */
+        .modal-overlay { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.5); z-index: 99999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; padding: 20px; backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-card { background: var(--container-bg); color: var(--text-color); width: 100%; max-width: 320px; border-radius: var(--border-radius); padding: 20px; box-shadow: 0 12px 32px rgba(0,0,0,0.3); text-align: center; border-top: 5px solid var(--primary); transform: scale(0.9); transition: transform 0.2s ease; }
+        .modal-overlay.active .modal-card { transform: scale(1); }
+        .modal-title { font-size: 15px; font-weight: 800; margin-bottom: 12px; color: var(--primary); }
+        .modal-btn-list { display: flex; flex-direction: column; gap: 8px; }
+        .modal-btn { width: 100%; padding: 12px; border-radius: 20px; border: none; font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .modal-btn-add { background: var(--card-green); color: #14532d; }
+        .modal-btn-sub { background: var(--card-rep-1); color: #7b341e; }
+        .modal-btn-clear { background: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
+        .modal-btn-cancel { background: var(--bg-color); color: var(--text-color); }
+        
         #file-input { display: none; }
     </style>
 </head>
@@ -203,7 +233,7 @@
         </header>
 
         <div class="tip-banner">
-            👆 <strong>1 Toque:</strong> Modifica la carta | ⏱️ <strong>Mantén presionado:</strong> Borra por completo
+            👆 <strong>Toque rápido:</strong> +1 carta/repetida | ⏱️ <strong>Mantén presionado:</strong> Menú seguro
         </div>
 
         <!-- SECCIÓN: COLECCIÓN PRINCIPAL -->
@@ -226,18 +256,8 @@
             </div>
 
             <div class="search-filter-box">
-                <input type="text" class="search-input" id="search-input" placeholder="🔍 Buscar por número en bloque activo...">
-                
-                <!-- Subfiltros de estado (Todas, Obtenidas, Faltantes, Repetidas) -->
+                <input type="text" class="search-input" id="search-input" placeholder="🔍 Buscar por número o serie (Ej: Kuromi, 185)...">
                 <div class="filter-scroll" id="status-filter-container"></div>
-                
-                <!-- Función Solicitada: Lista Desplegable (Dropdown) de Colecciones -->
-                <div class="dropdown-container">
-                    <span class="dropdown-label">Filtrar por Colección:</span>
-                    <select class="select-dropdown" id="collection-dropdown" onchange="handleDropdownChange()">
-                        <!-- Se llena dinámicamente con JavaScript -->
-                    </select>
-                </div>
             </div>
 
             <div class="cards-grid" id="cards-grid"></div>
@@ -253,7 +273,7 @@
 
             <div class="panel-box" style="border-top: 5px solid var(--accent);">
                 <div class="panel-title" id="trade-missing-title">🔍 Mi Lista de Faltantes</div>
-                <p style="font-size:10px; color:var(--text-muted); margin-bottom:6px;">* Esta lista cambia dinámicamente según la colección que selecciones en el menú desplegable.</p>
+                <p style="font-size:10px; color:var(--text-muted); margin-bottom:6px;">* Esta lista genera de forma limpia todas tus faltantes del álbum.</p>
                 <textarea class="trade-textarea" id="missing-text" readonly style="border-color: var(--accent);"></textarea>
                 <button class="btn-action btn-secondary" id="btn-copy-missing" onclick="copyMissingList()">📋 Copiar Faltantes para WhatsApp</button>
             </div>
@@ -264,7 +284,7 @@
             <div class="panel-box" style="border-left: 5px solid var(--details-yellow);">
                 <div class="panel-title">⚡ Modo Revisión Rápida</div>
                 <div class="setting-row" style="border:none; padding:0;">
-                    <span style="font-size:12px; color:var(--text-muted); max-width:75%;">Al activarlo, cada toque sumará +1 repetida inmediatamente sin retrasos. ¡Ideal para escanear sobres nuevos!</span>
+                    <span style="font-size:12px; color:var(--text-muted); max-width:75%;">Al activarlo, cada toque sumará +1 repetida inmediatamente sin retrasos.</span>
                     <label class="switch">
                         <input type="checkbox" id="fast-mode-toggle">
                         <span class="slider"></span>
@@ -300,6 +320,19 @@
         </div>
     </div>
 
+    <!-- MENÚ EMERGENTE SEGURO (MODAL) -->
+    <div class="modal-overlay" id="options-modal" onclick="closeModal()">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <div class="modal-title" id="modal-card-title">Opciones de Carta</div>
+            <div class="modal-btn-list">
+                <button class="modal-btn modal-btn-add" onclick="menuAction('add')">🎀 Sumar Repetida (+1)</button>
+                <button class="modal-btn modal-btn-sub" onclick="menuAction('sub')">🔁 Restar una Repetida (-1)</button>
+                <button class="modal-btn modal-btn-clear" onclick="menuAction('clear')">🗑️ Vaciar Carta (Poner en 0)</button>
+                <button class="modal-btn modal-btn-cancel" onclick="closeModal()">❌ Cancelar</button>
+            </div>
+        </div>
+    </div>
+
     <nav class="bottom-nav">
         <button class="nav-item active" onclick="switchView('collection', this)"><div class="nav-icon">🎀</div><span>Colección</span></button>
         <button class="nav-item" onclick="switchView('trade', this)"><div class="nav-icon">🔁</div><span>Intercambio</span></button>
@@ -318,9 +351,9 @@
         const BASE_TOTAL = 227; 
         let collectionData = [];
         let currentFilter = 'all'; 
-        let currentCollection = 'all'; // 'all' por defecto para mostrar TODO al iniciar
         let startDate = null;
         let recentChanges = [];
+        let selectedCardId = null;
 
         const COLLECTIONS = [
             { name: "HELLO KITTY", start: 1, end: 9 },
@@ -352,7 +385,6 @@
             loadSavedData();
             initTheme();
             buildFilterButtons();
-            populateDropdown();
             renderGrid();
             updateDashboard();
             calculateDays();
@@ -361,15 +393,8 @@
         function loadSavedData() {
             const savedDataNew = localStorage.getItem('hk_ultra_album_v10');
             const savedDate = localStorage.getItem('hk_ultra_date_v10');
-            
             generateInitialDatabase();
-
-            if (savedDataNew) {
-                collectionData = JSON.parse(savedDataNew);
-            } else {
-                saveToStorage();
-            }
-            
+            if (savedDataNew) { collectionData = JSON.parse(savedDataNew); } else { saveToStorage(); }
             if (savedDate) { startDate = savedDate; } else { startDate = new Date().toISOString(); localStorage.setItem('hk_ultra_date_v10', startDate); }
         }
 
@@ -386,26 +411,12 @@
 
         function buildFilterButtons() {
             const statusContainer = document.getElementById('status-filter-container');
-            
             statusContainer.innerHTML = `
                 <button class="filter-btn ${currentFilter === 'all'?'active':''}" onclick="setStatusFilter('all', this)">Todas</button>
                 <button class="filter-btn ${currentFilter === 'obtained'?'active':''}" onclick="setStatusFilter('obtained', this)">Obtenidas</button>
                 <button class="filter-btn ${currentFilter === 'missing'?'active':''}" onclick="setStatusFilter('missing', this)">Faltantes</button>
                 <button class="filter-btn ${currentFilter === 'repeated'?'active':''}" onclick="setStatusFilter('repeated', this)">Repetidas</button>
             `;
-        }
-
-        // Llena la lista desplegable dinámicamente con los contadores correctos
-        function populateDropdown() {
-            const dropdown = document.getElementById('collection-dropdown');
-            dropdown.innerHTML = `<option value="all">✨ Ver Todas las Colecciones (${collectionData.length})</option>`;
-            
-            COLLECTIONS.forEach(col => {
-                const subSet = collectionData.filter(c => c.type === col.name);
-                const subObt = subSet.filter(c => c.obtained).length;
-                dropdown.innerHTML += `<option value="${col.name}">📂 ${col.name} (${subObt}/${subSet.length})</option>`;
-            });
-            dropdown.value = currentCollection;
         }
 
         function calculateDays() {
@@ -418,21 +429,16 @@
             const exists = collectionData.some(c => c.name.toLowerCase() === name.toLowerCase()); if (exists) { alert("Esa carta ya existe."); return; }
             const nextId = collectionData.length > 0 ? Math.max(...collectionData.map(c => c.id)) + 1 : 1;
             collectionData.push({ id: nextId, name: name, type: 'EXTRA ➕', obtained: false, copies: 0 });
-            saveToStorage(); input.value = ''; populateDropdown(); renderGrid(); updateDashboard();
+            saveToStorage(); input.value = ''; renderGrid(); updateDashboard();
             alert(`¡Carta "${name}" agregada a Extras!`);
         }
 
         function logRecentChange(cardName) {
-            recentChanges = recentChanges.filter(name => name !== cardName);
-            recentChanges.unshift(cardName);
+            recentChanges = recentChanges.filter(name => name !== cardName); recentChanges.unshift(cardName);
             if(recentChanges.length > 3) recentChanges.pop();
             const container = document.getElementById('recent-box');
-            if(recentChanges.length === 0) {
-                container.innerHTML = `<span>Cambios recientes:</span> <span style="font-style: italic;">Ninguno aún</span>`;
-            } else {
-                let tags = recentChanges.map(n => `<span class="recent-tag">#${n}</span>`).join(' ');
-                container.innerHTML = `<span>Cambios recientes:</span> ${tags}`;
-            }
+            if(recentChanges.length === 0) { container.innerHTML = `<span>Cambios recientes:</span> <span style="font-style: italic;">Ninguno aún</span>`; } 
+            else { container.innerHTML = `<span>Cambios recientes:</span> ` + recentChanges.map(n => `<span class="recent-tag">#${n}</span>`).join(' '); }
         }
 
         function handleCardClick(id) {
@@ -450,21 +456,40 @@
                         collectionData[idx].copies += 1;
                     }
                 }
-                logRecentChange(collectionData[idx].name);
-                saveToStorage(); populateDropdown(); renderGrid(); updateDashboard();
+                logRecentChange(collectionData[idx].name); saveToStorage(); renderGrid(); updateDashboard();
             }
         }
 
-        function handleCardLongPress(id, event) {
+        function openMenu(id, event) {
             if(event) { event.preventDefault(); event.stopPropagation(); }
-            const idx = collectionData.findIndex(c => c.id === id);
-            if (idx !== -1) { 
-                collectionData[idx].obtained = false; 
-                collectionData[idx].copies = 0; 
-                logRecentChange(collectionData[idx].name + " (Borrada)");
-                saveToStorage(); populateDropdown(); renderGrid(); updateDashboard(); 
-            }
+            selectedCardId = id;
+            const card = collectionData.find(c => c.id === id);
+            if (!card) return;
+            document.getElementById('modal-card-title').innerText = `Estampa #${card.name} [${card.type}]`;
+            document.getElementById('options-modal').classList.add('active');
             return false;
+        }
+
+        function closeModal() { document.getElementById('options-modal').classList.remove('active'); selectedCardId = null; }
+
+        function menuAction(action) {
+            if (selectedCardId === null) return;
+            const idx = collectionData.findIndex(c => c.id === selectedCardId);
+            if (idx === -1) return;
+
+            if (action === 'add') {
+                if (!collectionData[idx].obtained) { collectionData[idx].obtained = true; } 
+                else { collectionData[idx].copies += 1; }
+                logRecentChange(collectionData[idx].name);
+            } else if (action === 'sub') {
+                if (collectionData[idx].copies > 0) { collectionData[idx].copies -= 1; } 
+                else if (collectionData[idx].obtained) { collectionData[idx].obtained = false; }
+                logRecentChange(collectionData[idx].name + " (-1)");
+            } else if (action === 'clear') {
+                collectionData[idx].obtained = false; collectionData[idx].copies = 0;
+                logRecentChange(collectionData[idx].name + " (Cero)");
+            }
+            saveToStorage(); renderGrid(); updateDashboard(); closeModal();
         }
 
         function renderGrid() {
@@ -472,16 +497,12 @@
             const query = document.getElementById('search-input').value.toLowerCase().trim();
 
             collectionData.forEach(card => {
-                // Validación del Dropdown Desplegable: si no es 'all', filtra la serie elegida
-                if (currentCollection !== 'all' && card.type !== currentCollection) return;
-
                 if (query) {
                     if (query === 'repetidas' || query === 'repetida') { if (card.copies === 0) return; } 
                     else if (query === 'tengo' || query === 'obtenidas') { if (!card.obtained) return; } 
                     else if (query === 'faltan' || query === 'faltantes') { if (card.obtained) return; } 
-                    else { if (!card.name.toLowerCase().includes(query)) return; }
+                    else { if (!card.name.toLowerCase().includes(query) && !card.type.toLowerCase().includes(query)) return; }
                 }
-
                 if (currentFilter === 'obtained' && !card.obtained) return;
                 if (currentFilter === 'missing' && card.obtained) return;
                 if (currentFilter === 'repeated' && card.copies === 0) return;
@@ -496,30 +517,17 @@
                 else if (card.copies >= 5) { cardEl.classList.add('rep-level-max'); }
 
                 cardEl.onclick = (e) => { e.preventDefault(); handleCardClick(card.id); };
-                cardEl.oncontextmenu = (e) => { e.preventDefault(); handleCardLongPress(card.id, e); return false; };
+                cardEl.oncontextmenu = (e) => { e.preventDefault(); openMenu(card.id, e); return false; };
 
                 let pressTimer;
-                cardEl.addEventListener('touchstart', (e) => { pressTimer = setTimeout(() => { handleCardLongPress(card.id, e); }, 500); }, {passive: true});
+                cardEl.addEventListener('touchstart', (e) => { pressTimer = setTimeout(() => { openMenu(card.id, e); }, 500); }, {passive: true});
                 cardEl.addEventListener('touchend', () => clearTimeout(pressTimer));
+                cardEl.addEventListener('touchmove', () => clearTimeout(pressTimer));
 
                 let repBadge = card.copies > 0 ? `<span class="card-rep-badge">+${card.copies}</span>` : '';
+                let bowSvg = `<svg class="kitty-bow-svg" viewBox="0 0 100 68"><path class="bow-main" d="M 40,34 C 20,10 5,20 10,40 C 15,55 30,50 40,34 Z" stroke="#111" stroke-width="3" stroke-linejoin="round"/><path class="bow-main" d="M 60,34 C 80,10 95,20 90,40 C 85,55 70,50 60,34 Z" stroke="#111" stroke-width="3" stroke-linejoin="round"/><circle class="bow-center" cx="50" cy="34" r="14" fill="#fff" stroke="#111" stroke-width="3"/></svg>`;
 
-                let bowSvg = `
-                    <svg class="kitty-bow-svg" viewBox="0 0 100 68" xmlns="http://www.w3.org/2000/svg">
-                        <path class="bow-main" d="M 40,34 C 20,10 5,20 10,40 C 15,55 30,50 40,34 Z" stroke="#111" stroke-width="3" stroke-linejoin="round"/>
-                        <path class="bow-main" d="M 60,34 C 80,10 95,20 90,40 C 85,55 70,50 60,34 Z" stroke="#111" stroke-width="3" stroke-linejoin="round"/>
-                        <circle class="bow-center" cx="50" cy="34" r="14" fill="#fff" stroke="#111" stroke-width="3"/>
-                    </svg>
-                `;
-
-                cardEl.innerHTML = `
-                    ${bowSvg}
-                    <div class="card-num-row">
-                        <span class="card-num">#${card.name}</span>
-                        ${repBadge}
-                    </div>
-                    <span class="card-collection-title">${card.type}</span>
-                `;
+                cardEl.innerHTML = `${bowSvg}<div class="card-num-row"><span class="card-num">#${card.name}</span>${repBadge}</div><span class="card-collection-title">${card.type}</span>`;
                 grid.appendChild(cardEl);
             });
         }
@@ -530,99 +538,34 @@
             const total = collectionData.length; const obtained = collectionData.filter(c => c.obtained).length;
             const missing = total - obtained; const repeated = collectionData.reduce((acc, c) => acc + c.copies, 0);
             const percent = total > 0 ? Math.round((obtained / total) * 100) : 0;
-
             document.getElementById('stat-total').innerText = total; document.getElementById('stat-obtained').innerText = obtained;
             document.getElementById('stat-missing').innerText = missing; document.getElementById('stat-repeated').innerText = repeated;
-            document.getElementById('stat-percent').innerText = `${percent}%`;
-            document.getElementById('progress-bar').style.width = `${percent}%`; document.getElementById('progress-text').innerText = `${percent}% Completado`;
-
-            if (obtained === total && total > 0 && localStorage.getItem('hk_ultra_cel_v10') !== 'true') {
-                document.getElementById('celebration').classList.add('active'); localStorage.setItem('hk_ultra_cel_v10', 'true');
-            }
+            document.getElementById('stat-percent').innerText = `${percent}%`; document.getElementById('progress-bar').style.width = `${percent}%`; document.getElementById('progress-text').innerText = `${percent}% Completado`;
+            if (obtained === total && total > 0 && localStorage.getItem('hk_ultra_cel_v10') !== 'true') { document.getElementById('celebration').classList.add('active'); localStorage.setItem('hk_ultra_cel_v10', 'true'); }
         }
 
         function switchView(view, btn) {
-            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active-view'));
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            document.getElementById(`view-${view}`).classList.add('active-view'); btn.classList.add('active');
-            if(view === 'trade') updateTradeSection();
-            window.scrollTo(0,0);
+            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active-view')); document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.getElementById(`view-${view}`).classList.add('active-view'); btn.classList.add('active'); if(view === 'trade') updateTradeSection(); window.scrollTo(0,0);
         }
 
-        function setStatusFilter(type, btn) {
-            currentFilter = type; 
-            document.querySelectorAll('#status-filter-container .filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active'); 
-            renderGrid();
-        }
-
-        // Escucha los cambios del menú desplegable
-        function handleDropdownChange() {
-            const dropdown = document.getElementById('collection-dropdown');
-            currentCollection = dropdown.value;
-            
-            // Actualiza el banner de título según lo seleccionado
-            const banner = document.getElementById('section-title-banner');
-            if(currentCollection === 'all') {
-                banner.innerText = "Colección: TODAS LAS SERIES VISIBLES";
-            } else {
-                banner.innerText = `Colección: ${currentCollection}`;
-            }
-            renderGrid();
-        }
+        function setStatusFilter(type, btn) { currentFilter = type; document.querySelectorAll('#status-filter-container .filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); renderGrid(); }
 
         function updateTradeSection() {
             const txtRep = document.getElementById('trade-text'); const repeatedCards = collectionData.filter(c => c.copies > 0);
             if (repeatedCards.length === 0) { txtRep.value = "No tienes cartas repetidas registradas aún."; } 
-            else {
-                let outRep = "¡Hola! Tengo estas cartas repetidas de Hello Kitty para intercambiar:\n\n";
-                repeatedCards.forEach(c => { outRep += `• Carta #${c.name} [${c.type}] -> (${c.copies} repetidas)\n`; });
-                txtRep.value = outRep;
-            }
+            else { let outRep = "¡Hola! Tengo estas cartas repetidas de Hello Kitty para intercambiar:\n\n"; repeatedCards.forEach(c => { outRep += `• Carta #${c.name} [${c.type}] -> (${c.copies} repetidas)\n`; }); txtRep.value = outRep; }
 
-            const txtMiss = document.getElementById('missing-text'); 
-            const lblTitle = document.getElementById('trade-missing-title');
-            
-            let filteredMissing = [];
-            let labelContext = "";
-
-            // La lista de faltantes hereda automáticamente el filtro del dropdown desplegable
-            if(currentCollection === 'all') {
-                filteredMissing = collectionData.filter(c => !c.obtained);
-                labelContext = "TODAS LAS SERIES";
-            } else {
-                filteredMissing = collectionData.filter(c => !c.obtained && c.type === currentCollection);
-                labelContext = `SERIE ${currentCollection}`;
-            }
-
-            lblTitle.innerText = `🔍 Mi Lista de Faltantes (${labelContext})`;
-
-            if (filteredMissing.length === 0) { 
-                txtMiss.value = `¡Genial! No te falta ninguna carta en el bloque activo [${labelContext}]. 🎉`; 
-            } else {
-                let outMiss = `¡Hola! Estas son las cartas que me FALTAN de la [${labelContext}] para completar mi álbum de Hello Kitty:\n\n`;
-                filteredMissing.forEach(c => { outMiss += `• Carta #${c.name} [${c.type}]\n`; });
-                txtMiss.value = outMiss;
-            }
+            const txtMiss = document.getElementById('missing-text'); const lblTitle = document.getElementById('trade-missing-title');
+            let filteredMissing = collectionData.filter(c => !c.obtained);
+            lblTitle.innerText = `🔍 Mi Lista de Faltantes (ÁLBUM COMPLETO)`;
+            if (filteredMissing.length === 0) { txtMiss.value = "¡Genial! No te falta ninguna carta en todo el álbum. 🎉"; } 
+            else { let outMiss = "¡Hola! Estas son las cartas que me FALTAN para completar mi álbum de Hello Kitty:\n\n"; filteredMissing.forEach(c => { outMiss += `• Carta #${c.name} [${c.type}]\n`; }); txtMiss.value = outMiss; }
         }
 
-        function copyTradeList() {
-            const txt = document.getElementById('trade-text'); if (collectionData.filter(c => c.copies > 0).length === 0) return;
-            txt.select(); navigator.clipboard.writeText(txt.value); alert("¡Lista de repetidas copiada para WhatsApp! 🎀");
-        }
-
-        function copyMissingList() {
-            const txt = document.getElementById('missing-text'); if(txt.value.includes("¡Genial!")) return;
-            txt.select(); navigator.clipboard.writeText(txt.value); alert("¡Lista de wishlist filtrada copiada para WhatsApp! 🔍");
-        }
-
-        function exportCollection() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ version: "10.5", startDate: startDate, cards: collectionData }));
-            const dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "kitty_album_v10_backup.json");
-            document.body.appendChild(dl); dl.click(); dl.remove();
-        }
-
-        document.getElementById('file-input').addEventListener('change', importCollection);
+        function copyTradeList() { const txt = document.getElementById('trade-text'); if (collectionData.filter(c => c.copies > 0).length === 0) return; txt.select(); navigator.clipboard.writeText(txt.value); alert("¡Lista de repetidas copiada! 🎀"); }
+        function copyMissingList() { const txt = document.getElementById('missing-text'); if(txt.value.includes("¡Genial!")) return; txt.select(); navigator.clipboard.writeText(txt.value); alert("¡Lista de faltantes copiada! 🔍"); }
+        function exportCollection() { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ version: "10.8", startDate: startDate, cards: collectionData })); const dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "kitty_album_v10_backup.json"); document.body.appendChild(dl); dl.click(); dl.remove(); }
         function triggerImport() { document.getElementById('file-input').click(); }
 
         function importCollection(e) {
@@ -631,38 +574,20 @@
             reader.onload = function(evt) {
                 try {
                     const parsed = JSON.parse(evt.target.result);
-                    if (parsed && Array.isArray(parsed.cards)) {
-                        collectionData = parsed.cards; if(parsed.startDate) startDate = parsed.startDate;
-                        saveToStorage(); buildFilterButtons(); populateDropdown(); renderGrid(); updateDashboard(); calculateDays();
-                        alert("¡Colección restaurada! ✨");
-                    }
+                    if (parsed && Array.isArray(parsed.cards)) { collectionData = parsed.cards; if(parsed.startDate) startDate = parsed.startDate; saveToStorage(); buildFilterButtons(); renderGrid(); updateDashboard(); calculateDays(); alert("¡Colección restaurada! ✨"); }
                 } catch (err) { alert("Error al leer el archivo."); }
             };
             reader.readAsText(file);
         }
 
         function resetCollection() {
-            if (confirm("¿Vaciar el álbum por completo?") && confirm("Esto borrará tus estampas marcadas de todas las colecciones. ¿Confirmar?")) {
-                localStorage.removeItem('hk_ultra_album_v10');
-                startDate = new Date().toISOString(); localStorage.setItem('hk_ultra_date_v10', startDate);
-                recentChanges = []; logRecentChange("");
-                generateInitialDatabase(); saveToStorage(); buildFilterButtons(); populateDropdown(); renderGrid(); updateDashboard(); calculateDays();
-                alert("Álbum limpio.");
+            if (confirm("¿Vaciar el álbum?") && confirm("Esto borrará tus estampas marcadas de todas las colecciones. ¿Confirmar?")) {
+                localStorage.removeItem('hk_ultra_album_v10'); startDate = new Date().toISOString(); localStorage.setItem('hk_ultra_date_v10', startDate); recentChanges = []; logRecentChange(""); generateInitialDatabase(); saveToStorage(); buildFilterButtons(); renderGrid(); updateDashboard(); calculateDays(); alert("Álbum limpio.");
             }
         }
 
-        function initTheme() {
-            const savedTheme = localStorage.getItem('hk_theme_fast');
-            const isDark = savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
-            document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-            document.getElementById('theme-toggle').checked = isDark;
-        }
-
-        function toggleTheme() {
-            const isDark = document.getElementById('theme-toggle').checked;
-            document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-            localStorage.setItem('hk_theme_fast', isDark ? 'dark' : 'light');
-        }
+        function initTheme() { const savedTheme = localStorage.getItem('hk_theme_fast'); const isDark = savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches); document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light'); document.getElementById('theme-toggle').checked = isDark; }
+        function toggleTheme() { const isDark = document.getElementById('theme-toggle').checked; document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light'); localStorage.setItem('hk_theme_fast', isDark ? 'dark' : 'light'); }
     </script>
 </body>
 </html>
