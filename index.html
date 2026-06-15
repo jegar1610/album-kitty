@@ -299,4 +299,353 @@
     <nav class="bottom-nav">
         <button class="nav-item active" onclick="switchView('collection', this)"><div class="nav-icon">🎀</div><span>Colección</span></button>
         <button class="nav-item" onclick="switchView('trade', this)"><div class="nav-icon">🔁</div><span>Intercambio</span></button>
-        <button class="nav-item" onclick="switchView('settings', this)"><div class="
+        <button class="nav-item" onclick="switchView('settings', this)"><div class="nav-icon">⚙️</div><span>Ajustes</span></button>
+    </nav>
+
+    <div class="celebration-overlay" id="celebration">
+        <div style="text-align: center;">
+            <h1 style="font-size: 32pt;">¡ÁLBUM COMPLETO! 🎉</h1>
+            <p style="font-size: 18px; margin-top: 15px; font-weight: bold; color: var(--primary);">✨ Completaste todas tus cartas registradas ✨</p>
+            <button class="btn-action" style="margin-top: 30px; max-width: 200px; margin-left: auto; margin-right: auto;" onclick="document.getElementById('celebration').classList.remove('active')">¡Súper! 🎀</button>
+        </div>
+    </div>
+
+    <script>
+        const BASE_TOTAL = 227; 
+        let collectionData = [];
+        let currentFilter = 'all'; 
+        let currentCollection = 'HELLO KITTY'; 
+        let startDate = null;
+        let recentChanges = [];
+
+        const COLLECTIONS = [
+            { name: "HELLO KITTY", start: 1, end: 9 },
+            { name: "MY MELODY", start: 10, end: 18 },
+            { name: "KUROMI", start: 19, end: 27 },
+            { name: "BEST FRIENDS", start: 28, end: 36 },
+            { name: "ROOM TOUR", start: 37, end: 45 },
+            { name: "LET'S DANCE!", start: 46, end: 54 },
+            { name: "TRAVEL AND FUN", start: 55, end: 63 },
+            { name: "ROAD TRIP", start: 64, end: 72 },
+            { name: "AT THE SEASIDE", start: 73, end: 81 },
+            { name: "NAUTICAL CUTIES", start: 82, end: 90 },
+            { name: "SPACE FRIENDS", start: 91, end: 99 },
+            { name: "GOLDEN GLITTER FRIENDS", start: 100, end: 108 },
+            { name: "PLAY TOGETHER", start: 109, end: 117 },
+            { name: "KAWAI GASHAPON", start: 118, end: 126 },
+            { name: "POP PARTY", start: 127, end: 135 },
+            { name: "BALLOON PARADE", start: 136, end: 144 },
+            { name: "BABIES", start: 145, end: 153 },
+            { name: "MY FAVOURITE DAY", start: 154, end: 162 },
+            { name: "MAKE-UP", start: 163, end: 171 },
+            { name: "UNICORN DREAMS", start: 172, end: 180 },
+            { name: "COTTON CANDY CREW 🍭", start: 181, end: 209 }, 
+            { name: "FLUFFY ☁️", start: 210, end: 218 },             
+            { name: "LIMITADA ✨", start: 219, end: 227 }            
+        ];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadSavedData();
+            initTheme();
+            buildFilterButtons();
+            renderGrid();
+            updateDashboard();
+            calculateDays();
+        });
+
+        function loadSavedData() {
+            const savedDataNew = localStorage.getItem('hk_ultra_album_v10');
+            const savedDate = localStorage.getItem('hk_ultra_date_v10');
+            
+            generateInitialDatabase();
+
+            if (savedDataNew) {
+                collectionData = JSON.parse(savedDataNew);
+            } else {
+                saveToStorage();
+            }
+            
+            if (savedDate) { startDate = savedDate; } else { startDate = new Date().toISOString(); localStorage.setItem('hk_ultra_date_v10', startDate); }
+        }
+
+        function generateInitialDatabase() {
+            collectionData = [];
+            for (let i = 1; i <= BASE_TOTAL; i++) {
+                let foundCategory = COLLECTIONS.find(col => i >= col.start && i <= col.end);
+                let categoryName = foundCategory ? foundCategory.name : "Otros";
+                collectionData.push({ id: i, name: i.toString(), type: categoryName, obtained: false, copies: 0 });
+            }
+        }
+
+        function saveToStorage() { localStorage.setItem('hk_ultra_album_v10', JSON.stringify(collectionData)); }
+
+        function buildFilterButtons() {
+            const statusContainer = document.getElementById('status-filter-container');
+            const collectionContainer = document.getElementById('collection-filter-container');
+            
+            statusContainer.innerHTML = `
+                <button class="filter-btn ${currentFilter === 'all'?'active':''}" onclick="setStatusFilter('all', this)">Todas</button>
+                <button class="filter-btn ${currentFilter === 'obtained'?'active':''}" onclick="setStatusFilter('obtained', this)">Obtenidas</button>
+                <button class="filter-btn ${currentFilter === 'missing'?'active':''}" onclick="setStatusFilter('missing', this)">Faltantes</button>
+                <button class="filter-btn ${currentFilter === 'repeated'?'active':''}" onclick="setStatusFilter('repeated', this)">Repetidas</button>
+            `;
+
+            collectionContainer.innerHTML = '';
+            COLLECTIONS.forEach(col => {
+                const subSet = collectionData.filter(c => c.type === col.name);
+                const subObt = subSet.filter(c => c.obtained).length;
+                const subTotal = subSet.length;
+                
+                const btn = document.createElement('button');
+                btn.className = `filter-btn series-btn ${currentCollection === col.name ? 'active' : ''}`;
+                btn.innerText = `${col.name} (${subObt}/${subTotal})`;
+                btn.onclick = () => setCollectionFilter(col.name, btn);
+                collectionContainer.appendChild(btn);
+            });
+        }
+
+        function calculateDays() {
+            const diffDays = Math.floor(Math.abs(new Date() - new Date(startDate)) / (1000 * 60 * 60 * 24));
+            document.getElementById('days-counter').innerText = diffDays === 0 ? "¡Tu aventura clásica empezó hoy! 🎀" : `Llevas ${diffDays} días coleccionando 🎀`;
+        }
+
+        function addNewExtraCard() {
+            const input = document.getElementById('extra-card-name'); const name = input.value.trim(); if (!name) return;
+            const exists = collectionData.some(c => c.name.toLowerCase() === name.toLowerCase()); if (exists) { alert("Esa carta ya existe."); return; }
+            const nextId = collectionData.length > 0 ? Math.max(...collectionData.map(c => c.id)) + 1 : 1;
+            collectionData.push({ id: nextId, name: name, type: 'EXTRA ➕', obtained: false, copies: 0 });
+            saveToStorage(); input.value = ''; buildFilterButtons(); renderGrid(); updateDashboard();
+            alert(`¡Carta "${name}" agregada a Extras!`);
+        }
+
+        function logRecentChange(cardName) {
+            recentChanges = recentChanges.filter(name => name !== cardName);
+            recentChanges.unshift(cardName);
+            if(recentChanges.length > 3) recentChanges.pop();
+            const container = document.getElementById('recent-box');
+            if(recentChanges.length === 0) {
+                container.innerHTML = `<span>Cambios recientes:</span> <span style="font-style: italic;">Ninguno aún</span>`;
+            } else {
+                let tags = recentChanges.map(n => `<span class="recent-tag">#${n}</span>`).join(' ');
+                container.innerHTML = `<span>Cambios recientes:</span> ${tags}`;
+            }
+        }
+
+        function handleCardClick(id) {
+            const idx = collectionData.findIndex(c => c.id === id);
+            if (idx !== -1) {
+                const isFastMode = document.getElementById('fast-mode-toggle').checked;
+                if (isFastMode) {
+                    if (!collectionData[idx].obtained) { collectionData[idx].obtained = true; } 
+                    else { collectionData[idx].copies += 1; }
+                } else {
+                    if (!collectionData[idx].obtained) {
+                        collectionData[idx].obtained = true;
+                        collectionData[idx].copies = 0;
+                    } else {
+                        collectionData[idx].copies += 1;
+                    }
+                }
+                logRecentChange(collectionData[idx].name);
+                saveToStorage(); buildFilterButtons(); renderGrid(); updateDashboard();
+            }
+        }
+
+        function handleCardLongPress(id, event) {
+            if(event) { event.preventDefault(); event.stopPropagation(); }
+            const idx = collectionData.findIndex(c => c.id === id);
+            if (idx !== -1) { 
+                collectionData[idx].obtained = false; 
+                collectionData[idx].copies = 0; 
+                logRecentChange(collectionData[idx].name + " (Borrada)");
+                saveToStorage(); buildFilterButtons(); renderGrid(); updateDashboard(); 
+            }
+            return false;
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('cards-grid'); grid.innerHTML = '';
+            const query = document.getElementById('search-input').value.toLowerCase().trim();
+
+            collectionData.forEach(card => {
+                if (card.type !== currentCollection) return;
+
+                if (query) {
+                    if (query === 'repetidas' || query === 'repetida') { if (card.copies === 0) return; } 
+                    else if (query === 'tengo' || query === 'obtenidas') { if (!card.obtained) return; } 
+                    else if (query === 'faltan' || query === 'faltantes') { if (card.obtained) return; } 
+                    else { if (!card.name.toLowerCase().includes(query)) return; }
+                }
+
+                if (currentFilter === 'obtained' && !card.obtained) return;
+                if (currentFilter === 'missing' && card.obtained) return;
+                if (currentFilter === 'repeated' && card.copies === 0) return;
+
+                const cardEl = document.createElement('div'); cardEl.className = 'card';
+                if (card.obtained) cardEl.classList.add('obtained');
+                
+                // 🎀 Lógica extendida de colores para repetidas
+                if (card.copies === 1) {
+                    cardEl.classList.add('rep-level-1');
+                } else if (card.copies === 2) {
+                    cardEl.classList.add('rep-level-2');
+                } else if (card.copies === 3) {
+                    cardEl.classList.add('rep-level-3');
+                } else if (card.copies === 4) {
+                    cardEl.classList.add('rep-level-4');
+                } else if (card.copies >= 5) {
+                    cardEl.classList.add('rep-level-max');
+                }
+
+                cardEl.onclick = (e) => { e.preventDefault(); handleCardClick(card.id); };
+                cardEl.oncontextmenu = (e) => { e.preventDefault(); handleCardLongPress(card.id, e); return false; };
+
+                let pressTimer;
+                cardEl.addEventListener('touchstart', (e) => { pressTimer = setTimeout(() => { handleCardLongPress(card.id, e); }, 500); }, {passive: true});
+                cardEl.addEventListener('touchend', () => clearTimeout(pressTimer));
+
+                let repBadge = card.copies > 0 ? `<span class="card-rep-badge">+${card.copies}</span>` : '';
+
+                let bowSvg = `
+                    <svg class="kitty-bow-svg" viewBox="0 0 100 68" xmlns="http://www.w3.org/2000/svg">
+                        <path class="bow-main" d="M 40,34 C 20,10 5,20 10,40 C 15,55 30,50 40,34 Z" stroke="#111" stroke-width="3" stroke-linejoin="round"/>
+                        <path class="bow-main" d="M 60,34 C 80,10 95,20 90,40 C 85,55 70,50 60,34 Z" stroke="#111" stroke-width="3" stroke-linejoin="round"/>
+                        <circle class="bow-center" cx="50" cy="34" r="14" fill="#fff" stroke="#111" stroke-width="3"/>
+                    </svg>
+                `;
+
+                cardEl.innerHTML = `
+                    ${bowSvg}
+                    <div class="card-num-row">
+                        <span class="card-num">#${card.name}</span>
+                        ${repBadge}
+                    </div>
+                    <span class="card-collection-title">${card.type}</span>
+                `;
+                grid.appendChild(cardEl);
+            });
+        }
+
+        document.getElementById('search-input').addEventListener('input', renderGrid);
+
+        function updateDashboard() {
+            const total = collectionData.length; const obtained = collectionData.filter(c => c.obtained).length;
+            const missing = total - obtained; const repeated = collectionData.reduce((acc, c) => acc + c.copies, 0);
+            const percent = total > 0 ? Math.round((obtained / total) * 100) : 0;
+
+            document.getElementById('stat-total').innerText = total; document.getElementById('stat-obtained').innerText = obtained;
+            document.getElementById('stat-missing').innerText = missing; document.getElementById('stat-repeated').innerText = repeated;
+            document.getElementById('stat-percent').innerText = `${percent}%`;
+            document.getElementById('progress-bar').style.width = `${percent}%`; document.getElementById('progress-text').innerText = `${percent}% Completado`;
+
+            if (obtained === total && total > 0 && localStorage.getItem('hk_ultra_cel_v10') !== 'true') {
+                document.getElementById('celebration').classList.add('active'); localStorage.setItem('hk_ultra_cel_v10', 'true');
+            }
+        }
+
+        function switchView(view, btn) {
+            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active-view'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.getElementById(`view-${view}`).classList.add('active-view'); btn.classList.add('active');
+            if(view === 'trade') updateTradeSection();
+            window.scrollTo(0,0);
+        }
+
+        function setStatusFilter(type, btn) {
+            currentFilter = type; 
+            document.querySelectorAll('#status-filter-container .filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active'); 
+            renderGrid();
+        }
+
+        function setCollectionFilter(collectionName, btn) {
+            currentCollection = collectionName;
+            document.getElementById('section-title-banner').innerText = `Colección: ${collectionName}`;
+            document.querySelectorAll('#collection-filter-container .series-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderGrid();
+        }
+
+        function updateTradeSection() {
+            const txtRep = document.getElementById('trade-text'); const repeatedCards = collectionData.filter(c => c.copies > 0);
+            if (repeatedCards.length === 0) { txtRep.value = "No tienes cartas repetidas registradas aún."; } 
+            else {
+                let outRep = "¡Hola! Tengo estas cartas repetidas de Hello Kitty para intercambiar:\n\n";
+                repeatedCards.forEach(c => { outRep += `• Carta #${c.name} [${c.type}] -> (${c.copies} repetidas)\n`; });
+                txtRep.value = outRep;
+            }
+
+            const txtMiss = document.getElementById('missing-text'); 
+            const lblTitle = document.getElementById('trade-missing-title');
+            let filteredMissing = collectionData.filter(c => !c.obtained && c.type === currentCollection);
+
+            lblTitle.innerText = `🔍 Mi Lista de Faltantes (SERIE: ${currentCollection})`;
+
+            if (filteredMissing.length === 0) { 
+                txtMiss.value = `¡Genial! No te falta ninguna carta de la serie [${currentCollection}]. 🎉`; 
+            } else {
+                let outMiss = `¡Hola! Estas son las cartas que me FALTAN de la serie [${currentCollection}] para completar mi álbum de Hello Kitty:\n\n`;
+                filteredMissing.forEach(c => { outMiss += `• Carta #${c.name}\n`; });
+                txtMiss.value = outMiss;
+            }
+        }
+
+        function copyTradeList() {
+            const txt = document.getElementById('trade-text'); if (collectionData.filter(c => c.copies > 0).length === 0) return;
+            txt.select(); navigator.clipboard.writeText(txt.value); alert("¡Lista de repetidas copiada para WhatsApp! 🎀");
+        }
+
+        function copyMissingList() {
+            const txt = document.getElementById('missing-text'); if(txt.value.includes("¡Genial!")) return;
+            txt.select(); navigator.clipboard.writeText(txt.value); alert("¡Lista de wishlist filtrada copiada para WhatsApp! 🔍");
+        }
+
+        function exportCollection() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ version: "10.4", startDate: startDate, cards: collectionData }));
+            const dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "kitty_album_v10_backup.json");
+            document.body.appendChild(dl); dl.click(); dl.remove();
+        }
+
+        function triggerImport() { document.getElementById('file-input').click(); }
+
+        function importCollection(e) {
+            const file = e.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const parsed = JSON.parse(evt.target.result);
+                    if (parsed && Array.isArray(parsed.cards)) {
+                        collectionData = parsed.cards; if(parsed.startDate) startDate = parsed.startDate;
+                        saveToStorage(); buildFilterButtons(); renderGrid(); updateDashboard(); calculateDays();
+                        alert("¡Colección restaurada! ✨");
+                    }
+                } catch (err) { alert("Error al leer el archivo."); }
+            };
+            reader.readAsText(file);
+        }
+
+        function resetCollection() {
+            if (confirm("¿Vaciar el álbum por completo?") && confirm("Esto borrará tus estampas marcadas de todas las colecciones. ¿Confirmar?")) {
+                localStorage.removeItem('hk_ultra_album_v10');
+                startDate = new Date().toISOString(); localStorage.setItem('hk_ultra_date_v10', startDate);
+                recentChanges = []; logRecentChange("");
+                generateInitialDatabase(); saveToStorage(); buildFilterButtons(); renderGrid(); updateDashboard(); calculateDays();
+                alert("Álbum limpio.");
+            }
+        }
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('hk_theme_fast');
+            const isDark = savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+            document.getElementById('theme-toggle').checked = isDark;
+        }
+
+        function toggleTheme() {
+            const isDark = document.getElementById('theme-toggle').checked;
+            document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+            localStorage.setItem('hk_theme_fast', isDark ? 'dark' : 'light');
+        }
+    </script>
+</body>
+</html>
