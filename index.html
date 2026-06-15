@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hello Kitty Collector Classic v10.9</title>
+    <title>Hello Kitty Collector Classic v11.0</title>
     
     <meta name="theme-color" content="#e60012">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -119,9 +119,16 @@
         [data-theme="dark"] .stat-val { color: var(--accent); }
         .stat-lbl { font-size: 9px; color: var(--text-muted); text-transform: uppercase; margin-top: 2px; }
 
-        .recent-box { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--card-gray-border); font-size: 11px; color: var(--text-muted); display: flex; gap: 6px; align-items: center; justify-content: center; }
-        .recent-tag { background: var(--accent-light); color: #005cb2; padding: 2px 6px; border-radius: 6px; font-weight: bold; }
+        /* Contenedor del Historial + Botón de Deshacer */
+        .recent-flex-container { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--card-gray-border); display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; }
+        .recent-box { font-size: 11px; color: var(--text-muted); display: flex; gap: 4px; align-items: center; flex: 1; overflow: hidden; }
+        .recent-tag { background: var(--accent-light); color: #005cb2; padding: 2px 6px; border-radius: 6px; font-weight: bold; white-space: nowrap; }
         [data-theme="dark"] .recent-tag { background: #1e293b; color: var(--accent); }
+        
+        /* Estilos del Botón Deshacer */
+        .btn-undo { background: var(--primary); color: white; border: none; font-size: 11px; font-weight: bold; padding: 4px 12px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(230,0,18,0.2); transition: var(--transition); opacity: 0.4; pointer-events: none; }
+        .btn-undo.active { opacity: 1; pointer-events: auto; }
+        .btn-undo:active { transform: scale(0.92); }
 
         .search-filter-box { background: var(--container-bg); border-radius: var(--border-radius); padding: 12px; box-shadow: var(--shadow); margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); }
         .search-input { width: 100%; padding: 12px 16px; border: 2px solid var(--accent); border-radius: 30px; background: var(--bg-color); color: var(--text-color); font-size: 15px; outline: none; -webkit-user-select: text !important; user-select: text !important; }
@@ -211,13 +218,12 @@
         .modal-overlay.active .modal-card { transform: scale(1); }
         .modal-title { font-size: 15px; font-weight: 800; margin-bottom: 4px; color: var(--primary); }
         
-        /* Contador del modal en tiempo real */
         .modal-counter-status { font-size: 12px; font-weight: bold; color: var(--text-muted); margin-bottom: 15px; text-transform: uppercase; }
         
         .modal-btn-list { display: flex; flex-direction: column; gap: 8px; }
         .modal-btn { width: 100%; padding: 12px; border-radius: 20px; border: none; font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .modal-btn-add { background: var(--card-green); color: #14532d; border: 1px solid var(--card-green-border); }
-        .modal-btn-sub { background: var(--card-rep-1); color: #7b341e; border: 1px solid var(--card-rep-1-border); }
+        .modal-btn-add { background: var(--card-green); color: #14532d; }
+        .modal-btn-sub { background: var(--card-rep-1); color: #7b341e; }
         .modal-btn-clear { background: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
         .modal-btn-save { background: var(--accent); color: white; margin-top: 4px; }
         
@@ -250,8 +256,13 @@
                     <div class="stat-box"><div class="stat-val" id="stat-repeated">0</div><div class="stat-lbl">Repetidas</div></div>
                     <div class="stat-box"><div class="stat-val" id="stat-percent">0%</div><div class="stat-lbl">Progreso</div></div>
                 </div>
-                <div class="recent-box" id="recent-box">
-                    <span>Cambios recientes:</span> <span style="font-style: italic;">Ninguno aún</span>
+                
+                <!-- Historial + Función de Deshacer -->
+                <div class="recent-flex-container">
+                    <div class="recent-box" id="recent-box">
+                        <span>Cambios recientes:</span> <span style="font-style: italic;">Ninguno aún</span>
+                    </div>
+                    <button class="btn-undo" id="btn-undo" onclick="undoLastAction()">↩️ Deshacer</button>
                 </div>
             </div>
 
@@ -324,7 +335,6 @@
     <div class="modal-overlay" id="options-modal" onclick="closeModal()">
         <div class="modal-card" onclick="event.stopPropagation()">
             <div class="modal-title" id="modal-card-title">Opciones de Carta</div>
-            <!-- Indicador dinámico de copias dentro del menú -->
             <div class="modal-counter-status" id="modal-card-status">Estado: Faltante</div>
             
             <div class="modal-btn-list">
@@ -357,6 +367,9 @@
         let startDate = null;
         let recentChanges = [];
         let selectedCardId = null;
+        
+        // ↩️ Historial interno de respaldo para la función deshacer
+        let lastActionSnapshot = null;
 
         const COLLECTIONS = [
             { name: "HELLO KITTY", start: 1, end: 9 },
@@ -431,6 +444,8 @@
             const input = document.getElementById('extra-card-name'); const name = input.value.trim(); if (!name) return;
             const exists = collectionData.some(c => c.name.toLowerCase() === name.toLowerCase()); if (exists) { alert("Esa carta ya existe."); return; }
             const nextId = collectionData.length > 0 ? Math.max(...collectionData.map(c => c.id)) + 1 : 1;
+            
+            saveSnapshot(); // Toma captura antes de mutar
             collectionData.push({ id: nextId, name: name, type: 'EXTRA ➕', obtained: false, copies: 0 });
             saveToStorage(); input.value = ''; renderGrid(); updateDashboard();
             alert(`¡Carta "${name}" agregada a Extras!`);
@@ -444,9 +459,33 @@
             else { container.innerHTML = `<span>Cambios recientes:</span> ` + recentChanges.map(n => `<span class="recent-tag">#${n}</span>`).join(' '); }
         }
 
+        // ↩️ TOMA UNA CAPTURA DEL ESTADO ANTES DE HACER CUALQUIER CAMBIO
+        function saveSnapshot() {
+            lastActionSnapshot = JSON.stringify(collectionData);
+            document.getElementById('btn-undo').classList.add('active');
+        }
+
+        // ↩️ FUNCIÓN MAESTRA DE DESHACER
+        function undoLastAction() {
+            if (!lastActionSnapshot) return;
+            
+            collectionData = JSON.parse(lastActionSnapshot);
+            lastActionSnapshot = null; // Consume la acción
+            document.getElementById('btn-undo').classList.remove('active');
+            
+            // Elimina la última etiqueta del historial visual
+            recentChanges.shift();
+            const container = document.getElementById('recent-box');
+            if(recentChanges.length === 0) { container.innerHTML = `<span>Cambios recientes:</span> <span style="font-style: italic;">Ninguno aún</span>`; }
+            else { container.innerHTML = `<span>Cambios recientes:</span> ` + recentChanges.map(n => `<span class="recent-tag">#${n}</span>`).join(' '); }
+            
+            saveToStorage(); renderGrid(); updateDashboard();
+        }
+
         function handleCardClick(id) {
             const idx = collectionData.findIndex(c => c.id === id);
             if (idx !== -1) {
+                saveSnapshot(); // Guarda respaldo antes de modificar
                 const isFastMode = document.getElementById('fast-mode-toggle').checked;
                 if (isFastMode) {
                     if (!collectionData[idx].obtained) { collectionData[idx].obtained = true; } 
@@ -471,34 +510,25 @@
             return false;
         }
 
-        // 🎀 Nueva función para actualizar las etiquetas del modal en tiempo real
         function updateModalStatus() {
             if (selectedCardId === null) return;
             const card = collectionData.find(c => c.id === selectedCardId);
             if (!card) return;
-
             document.getElementById('modal-card-title').innerText = `Estampa #${card.name} [${card.type}]`;
-            
             const statusLabel = document.getElementById('modal-card-status');
-            if (!card.obtained) {
-                statusLabel.innerText = "Estado: ❌ Faltante";
-                statusLabel.style.color = "var(--text-muted)";
-            } else if (card.copies === 0) {
-                statusLabel.innerText = "Estado:  Tienes (0 repetidas)";
-                statusLabel.style.color = "var(--card-green-border)";
-            } else {
-                statusLabel.innerText = `Estado: 🔁 Tienes +${card.copies} Repetidas`;
-                statusLabel.style.color = "var(--card-rep-2-border)";
-            }
+            if (!card.obtained) { statusLabel.innerText = "Estado: ❌ Faltante"; statusLabel.style.color = "var(--text-muted)"; } 
+            else if (card.copies === 0) { statusLabel.innerText = "Estado: Tienes (0 repetidas)"; statusLabel.style.color = "var(--card-green-border)"; } 
+            else { statusLabel.innerText = `Estado: 🔁 Tienes +${card.copies} Repetidas`; statusLabel.style.color = "var(--card-rep-2-border)"; }
         }
 
         function closeModal() { document.getElementById('options-modal').classList.remove('active'); selectedCardId = null; }
 
-        // 🎀 Modificado para NO cerrar el modal tras presionar un botón
         function menuAction(action) {
             if (selectedCardId === null) return;
             const idx = collectionData.findIndex(c => c.id === selectedCardId);
             if (idx === -1) return;
+
+            saveSnapshot(); // Guarda respaldo desde el modal antes de alterar
 
             if (action === 'add') {
                 if (!collectionData[idx].obtained) { collectionData[idx].obtained = true; } 
@@ -512,11 +542,7 @@
                 collectionData[idx].obtained = false; collectionData[idx].copies = 0;
                 logRecentChange(collectionData[idx].name + " (Cero)");
             }
-            
-            saveToStorage(); 
-            renderGrid(); 
-            updateDashboard(); 
-            updateModalStatus(); // actualiza el texto del menú inmediatamente
+            saveToStorage(); renderGrid(); updateDashboard(); updateModalStatus();
         }
 
         function renderGrid() {
@@ -592,7 +618,7 @@
 
         function copyTradeList() { const txt = document.getElementById('trade-text'); if (collectionData.filter(c => c.copies > 0).length === 0) return; txt.select(); navigator.clipboard.writeText(txt.value); alert("¡Lista de repetidas copiada! 🎀"); }
         function copyMissingList() { const txt = document.getElementById('missing-text'); if(txt.value.includes("¡Genial!")) return; txt.select(); navigator.clipboard.writeText(txt.value); alert("¡Lista de faltantes copiada! 🔍"); }
-        function exportCollection() { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ version: "10.9", startDate: startDate, cards: collectionData })); const dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "kitty_album_v10_backup.json"); document.body.appendChild(dl); dl.click(); dl.remove(); }
+        function exportCollection() { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ version: "11.0", startDate: startDate, cards: collectionData })); const dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "kitty_album_v11_backup.json"); document.body.appendChild(dl); dl.click(); dl.remove(); }
         function triggerImport() { document.getElementById('file-input').click(); }
 
         function importCollection(e) {
@@ -608,8 +634,8 @@
         }
 
         function resetCollection() {
-            if (confirm("¿Vaciar el álbum?")) {
-                localStorage.removeItem('hk_ultra_album_v10'); startDate = new Date().toISOString(); localStorage.setItem('hk_ultra_date_v10', startDate); recentChanges = []; logRecentChange(""); generateInitialDatabase(); saveToStorage(); buildFilterButtons(); renderGrid(); updateDashboard(); calculateDays(); alert("Álbum limpio.");
+            if (confirm("¿Vaciar el álbum?") && confirm("Esto borrará tus estampas marcadas de todas las colecciones. ¿Confirmar?")) {
+                localStorage.removeItem('hk_ultra_album_v10'); startDate = new Date().toISOString(); localStorage.setItem('hk_ultra_date_v10', startDate); recentChanges = []; logRecentChange(""); lastActionSnapshot = null; document.getElementById('btn-undo').classList.remove('active'); generateInitialDatabase(); saveToStorage(); buildFilterButtons(); renderGrid(); updateDashboard(); calculateDays(); alert("Álbum limpio.");
             }
         }
 
