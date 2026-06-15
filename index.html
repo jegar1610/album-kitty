@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hello Kitty Collector Classic v10.8</title>
+    <title>Hello Kitty Collector Classic v10.9</title>
     
     <meta name="theme-color" content="#e60012">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,10 +13,9 @@
 
     <style>
         :root {
-            /* Patrón de puntos temático para Modo Claro */
             --bg-color: #f7fafc;
-            --dot-color: #fce8e6; /* Puntitos rosa Sanrio muy sutiles */
-            --container-bg: rgba(255, 255, 255, 0.92); /* Un toque traslúcido elegante */
+            --dot-color: #fce8e6; 
+            --container-bg: rgba(255, 255, 255, 0.92); 
             
             --text-color: #1a1a1a;
             --text-muted: #666666;
@@ -51,9 +50,8 @@
         }
 
         [data-theme="dark"] {
-            /* Patrón de puntos temático para Modo Oscuro */
             --bg-color: #0f172a;
-            --dot-color: #1e293b; /* Puntitos oscuros discretos */
+            --dot-color: #1e293b; 
             --container-bg: rgba(30, 41, 59, 0.92);
             
             --text-color: #f5f5f5;
@@ -91,11 +89,9 @@
 
         body { 
             background-color: var(--bg-color);
-            /* Generación del patrón de puntos Polka Dot sin imágenes pesadas */
             background-image: radial-gradient(var(--dot-color) 15%, transparent 16%), radial-gradient(var(--dot-color) 15%, transparent 16%);
             background-size: 24px 24px;
             background-position: 0 0, 12px 12px;
-            
             color: var(--text-color); 
             transition: background-color 0.2s ease, background-image 0.2s ease; 
             padding-bottom: 90px; 
@@ -213,13 +209,17 @@
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         .modal-card { background: var(--container-bg); color: var(--text-color); width: 100%; max-width: 320px; border-radius: var(--border-radius); padding: 20px; box-shadow: 0 12px 32px rgba(0,0,0,0.3); text-align: center; border-top: 5px solid var(--primary); transform: scale(0.9); transition: transform 0.2s ease; }
         .modal-overlay.active .modal-card { transform: scale(1); }
-        .modal-title { font-size: 15px; font-weight: 800; margin-bottom: 12px; color: var(--primary); }
+        .modal-title { font-size: 15px; font-weight: 800; margin-bottom: 4px; color: var(--primary); }
+        
+        /* Contador del modal en tiempo real */
+        .modal-counter-status { font-size: 12px; font-weight: bold; color: var(--text-muted); margin-bottom: 15px; text-transform: uppercase; }
+        
         .modal-btn-list { display: flex; flex-direction: column; gap: 8px; }
-        .modal-btn { width: 100%; padding: 12px; border-radius: 20px; border: none; font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .modal-btn-add { background: var(--card-green); color: #14532d; }
-        .modal-btn-sub { background: var(--card-rep-1); color: #7b341e; }
+        .modal-btn { width: 100%; padding: 12px; border-radius: 20px; border: none; font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .modal-btn-add { background: var(--card-green); color: #14532d; border: 1px solid var(--card-green-border); }
+        .modal-btn-sub { background: var(--card-rep-1); color: #7b341e; border: 1px solid var(--card-rep-1-border); }
         .modal-btn-clear { background: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
-        .modal-btn-cancel { background: var(--bg-color); color: var(--text-color); }
+        .modal-btn-save { background: var(--accent); color: white; margin-top: 4px; }
         
         #file-input { display: none; }
     </style>
@@ -233,7 +233,7 @@
         </header>
 
         <div class="tip-banner">
-            👆 <strong>Toque rápido:</strong> +1 carta/repetida | ⏱️ <strong>Mantén presionado:</strong> Menú seguro
+            👆 <strong>Toque rápido:</strong> +1 carta/repetida | ⏱️ <strong>Mantén presionado:</strong> Menú continuo
         </div>
 
         <!-- SECCIÓN: COLECCIÓN PRINCIPAL -->
@@ -320,15 +320,18 @@
         </div>
     </div>
 
-    <!-- MENÚ EMERGENTE SEGURO (MODAL) -->
+    <!-- MENÚ EMERGENTE FIJO EN PANTALLA -->
     <div class="modal-overlay" id="options-modal" onclick="closeModal()">
         <div class="modal-card" onclick="event.stopPropagation()">
             <div class="modal-title" id="modal-card-title">Opciones de Carta</div>
+            <!-- Indicador dinámico de copias dentro del menú -->
+            <div class="modal-counter-status" id="modal-card-status">Estado: Faltante</div>
+            
             <div class="modal-btn-list">
                 <button class="modal-btn modal-btn-add" onclick="menuAction('add')">🎀 Sumar Repetida (+1)</button>
                 <button class="modal-btn modal-btn-sub" onclick="menuAction('sub')">🔁 Restar una Repetida (-1)</button>
                 <button class="modal-btn modal-btn-clear" onclick="menuAction('clear')">🗑️ Vaciar Carta (Poner en 0)</button>
-                <button class="modal-btn modal-btn-cancel" onclick="closeModal()">❌ Cancelar</button>
+                <button class="modal-btn modal-btn-save" onclick="closeModal()">✅ Guardar y Cerrar</button>
             </div>
         </div>
     </div>
@@ -463,15 +466,35 @@
         function openMenu(id, event) {
             if(event) { event.preventDefault(); event.stopPropagation(); }
             selectedCardId = id;
-            const card = collectionData.find(c => c.id === id);
-            if (!card) return;
-            document.getElementById('modal-card-title').innerText = `Estampa #${card.name} [${card.type}]`;
+            updateModalStatus();
             document.getElementById('options-modal').classList.add('active');
             return false;
         }
 
+        // 🎀 Nueva función para actualizar las etiquetas del modal en tiempo real
+        function updateModalStatus() {
+            if (selectedCardId === null) return;
+            const card = collectionData.find(c => c.id === selectedCardId);
+            if (!card) return;
+
+            document.getElementById('modal-card-title').innerText = `Estampa #${card.name} [${card.type}]`;
+            
+            const statusLabel = document.getElementById('modal-card-status');
+            if (!card.obtained) {
+                statusLabel.innerText = "Estado: ❌ Faltante";
+                statusLabel.style.color = "var(--text-muted)";
+            } else if (card.copies === 0) {
+                statusLabel.innerText = "Estado:  Tienes (0 repetidas)";
+                statusLabel.style.color = "var(--card-green-border)";
+            } else {
+                statusLabel.innerText = `Estado: 🔁 Tienes +${card.copies} Repetidas`;
+                statusLabel.style.color = "var(--card-rep-2-border)";
+            }
+        }
+
         function closeModal() { document.getElementById('options-modal').classList.remove('active'); selectedCardId = null; }
 
+        // 🎀 Modificado para NO cerrar el modal tras presionar un botón
         function menuAction(action) {
             if (selectedCardId === null) return;
             const idx = collectionData.findIndex(c => c.id === selectedCardId);
@@ -489,7 +512,11 @@
                 collectionData[idx].obtained = false; collectionData[idx].copies = 0;
                 logRecentChange(collectionData[idx].name + " (Cero)");
             }
-            saveToStorage(); renderGrid(); updateDashboard(); closeModal();
+            
+            saveToStorage(); 
+            renderGrid(); 
+            updateDashboard(); 
+            updateModalStatus(); // actualiza el texto del menú inmediatamente
         }
 
         function renderGrid() {
@@ -565,7 +592,7 @@
 
         function copyTradeList() { const txt = document.getElementById('trade-text'); if (collectionData.filter(c => c.copies > 0).length === 0) return; txt.select(); navigator.clipboard.writeText(txt.value); alert("¡Lista de repetidas copiada! 🎀"); }
         function copyMissingList() { const txt = document.getElementById('missing-text'); if(txt.value.includes("¡Genial!")) return; txt.select(); navigator.clipboard.writeText(txt.value); alert("¡Lista de faltantes copiada! 🔍"); }
-        function exportCollection() { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ version: "10.8", startDate: startDate, cards: collectionData })); const dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "kitty_album_v10_backup.json"); document.body.appendChild(dl); dl.click(); dl.remove(); }
+        function exportCollection() { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ version: "10.9", startDate: startDate, cards: collectionData })); const dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "kitty_album_v10_backup.json"); document.body.appendChild(dl); dl.click(); dl.remove(); }
         function triggerImport() { document.getElementById('file-input').click(); }
 
         function importCollection(e) {
@@ -581,7 +608,7 @@
         }
 
         function resetCollection() {
-            if (confirm("¿Vaciar el álbum?") && confirm("Esto borrará tus estampas marcadas de todas las colecciones. ¿Confirmar?")) {
+            if (confirm("¿Vaciar el álbum?")) {
                 localStorage.removeItem('hk_ultra_album_v10'); startDate = new Date().toISOString(); localStorage.setItem('hk_ultra_date_v10', startDate); recentChanges = []; logRecentChange(""); generateInitialDatabase(); saveToStorage(); buildFilterButtons(); renderGrid(); updateDashboard(); calculateDays(); alert("Álbum limpio.");
             }
         }
