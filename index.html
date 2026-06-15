@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hello Kitty Collector Classic v11.1</title>
+    <title>Hello Kitty Collector Classic v11.3</title>
     
     <meta name="theme-color" content="#e60012">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -119,14 +119,14 @@
         [data-theme="dark"] .stat-val { color: var(--accent); }
         .stat-lbl { font-size: 9px; color: var(--text-muted); text-transform: uppercase; margin-top: 2px; }
 
-        .recent-flex-container { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--card-gray-border); display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; }
-        .recent-box { font-size: 11px; color: var(--text-muted); display: flex; gap: 4px; align-items: center; flex: 1; overflow: hidden; }
+        .recent-box { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 5px; }
         .recent-tag { background: var(--accent-light); color: #005cb2; padding: 2px 6px; border-radius: 6px; font-weight: bold; white-space: nowrap; }
         [data-theme="dark"] .recent-tag { background: #1e293b; color: var(--accent); }
         
-        .btn-undo { background: var(--primary); color: white; border: none; font-size: 11px; font-weight: bold; padding: 4px 12px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(230,0,18,0.2); transition: var(--transition); opacity: 0.4; pointer-events: none; }
-        .btn-undo.active { opacity: 1; pointer-events: auto; }
-        .btn-undo:active { transform: scale(0.92); }
+        /* 🚨 NUEVO SÚPER BOTÓN DE DESHACER FLOTANTE EN LA ESQUINA */
+        .btn-undo-floating { position: fixed; bottom: 85px; right: 15px; background: #e60012; color: white; border: 2px solid white; font-weight: 900; font-size: 12px; padding: 10px 18px; border-radius: 25px; cursor: pointer; box-shadow: 0 6px 16px rgba(230,0,18,0.25); z-index: 9999; display: flex; align-items: center; gap: 6px; transition: var(--transition); opacity: 0.3; pointer-events: none; }
+        .btn-undo-floating.active { opacity: 1; pointer-events: auto; }
+        .btn-undo-floating:active { transform: scale(0.92); }
 
         .search-filter-box { background: var(--container-bg); border-radius: var(--border-radius); padding: 12px; box-shadow: var(--shadow); margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); }
         .search-input { width: 100%; padding: 12px 16px; border: 2px solid var(--accent); border-radius: 30px; background: var(--bg-color); color: var(--text-color); font-size: 15px; outline: none; -webkit-user-select: text !important; user-select: text !important; }
@@ -220,8 +220,8 @@
         
         .modal-btn-list { display: flex; flex-direction: column; gap: 8px; }
         .modal-btn { width: 100%; padding: 12px; border-radius: 20px; border: none; font-size: 13px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .modal-btn-add { background: var(--card-green); color: #14532d; }
-        .modal-btn-sub { background: var(--card-rep-1); color: #7b341e; }
+        .modal-btn-add { background: var(--card-green); color: #14532d; border: 1px solid var(--card-green-border); }
+        .modal-btn-sub { background: var(--card-rep-1); color: #7b341e; border: 1px solid var(--card-rep-1-border); }
         .modal-btn-clear { background: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
         .modal-btn-save { background: var(--accent); color: white; margin-top: 4px; }
         
@@ -229,6 +229,9 @@
     </style>
 </head>
 <body>
+
+    <!-- Súper botón de deshacer flotante e infinito -->
+    <button class="btn-undo-floating" id="btn-undo" onclick="undoLastAction()">↩&nbsp;Deshacer</button>
 
     <div class="app-container">
         <header>
@@ -255,12 +258,8 @@
                     <div class="stat-box"><div class="stat-val" id="stat-percent">0%</div><div class="stat-lbl">Progreso</div></div>
                 </div>
                 
-                <!-- Historial + Función de Deshacer Completa -->
-                <div class="recent-flex-container">
-                    <div class="recent-box" id="recent-box">
-                        <span>Cambios recientes:</span> <span style="font-style: italic;">Ninguno aún</span>
-                    </div>
-                    <button class="btn-undo" id="btn-undo" onclick="undoLastAction()">↩️ Deshacer</button>
+                <div class="recent-box" id="recent-box">
+                    <span>Cambios recientes:</span> <span style="font-style: italic;">Ninguno aún</span>
                 </div>
             </div>
 
@@ -365,8 +364,6 @@
         let startDate = null;
         let recentChanges = [];
         let selectedCardId = null;
-        
-        // ↩️ Lista de historial infinito (Undo Stack)
         let undoStack = [];
 
         const COLLECTIONS = [
@@ -443,7 +440,7 @@
             const exists = collectionData.some(c => c.name.toLowerCase() === name.toLowerCase()); if (exists) { alert("Esa carta ya existe."); return; }
             const nextId = collectionData.length > 0 ? Math.max(...collectionData.map(c => c.id)) + 1 : 1;
             
-            pushSnapshot(); 
+            pushSnapshot();
             collectionData.push({ id: nextId, name: name, type: 'EXTRA ➕', obtained: false, copies: 0 });
             saveToStorage(); input.value = ''; renderGrid(); updateDashboard();
             alert(`¡Carta "${name}" agregada a Extras!`);
@@ -461,36 +458,24 @@
             else { container.innerHTML = `<span>Cambios recientes:</span> ` + recentChanges.map(n => `<span class="recent-tag">#${n}</span>`).join(' '); }
         }
 
-        // ↩️ EMPUJA UN NUEVO ESTADO AL HISTORIAL DE DESHACER (INFINITO)
         function pushSnapshot() {
             undoStack.push(JSON.stringify(collectionData));
             document.getElementById('btn-undo').classList.add('active');
         }
 
-        // ↩️ REVIERTE EN CADENA TODOS LOS MOVIMIENTOS QUE DESEES
         function undoLastAction() {
             if (undoStack.length === 0) return;
-            
-            // Saca el último estado de la pila
             const previousState = undoStack.pop();
             collectionData = JSON.parse(previousState);
-            
-            // Si la pila se queda vacía, apaga el botón visualmente
-            if (undoStack.length === 0) {
-                document.getElementById('btn-undo').classList.remove('active');
-            }
-            
-            // Borra la etiqueta más nueva del historial visual para mantener simetría
-            recentChanges.shift();
-            renderRecentBox();
-            
+            if (undoStack.length === 0) { document.getElementById('btn-undo').classList.remove('active'); }
+            recentChanges.shift(); renderRecentBox();
             saveToStorage(); renderGrid(); updateDashboard();
         }
 
         function handleCardClick(id) {
             const idx = collectionData.findIndex(c => c.id === id);
             if (idx !== -1) {
-                pushSnapshot(); // Guarda respaldo en la pila continua
+                pushSnapshot();
                 const isFastMode = document.getElementById('fast-mode-toggle').checked;
                 if (isFastMode) {
                     if (!collectionData[idx].obtained) { collectionData[idx].obtained = true; } 
@@ -509,8 +494,7 @@
 
         function openMenu(id, event) {
             if(event) { event.preventDefault(); event.stopPropagation(); }
-            selectedCardId = id;
-            updateModalStatus();
+            selectedCardId = id; updateModalStatus();
             document.getElementById('options-modal').classList.add('active');
             return false;
         }
@@ -533,7 +517,7 @@
             const idx = collectionData.findIndex(c => c.id === selectedCardId);
             if (idx === -1) return;
 
-            pushSnapshot(); // Guarda respaldo antes de alterar desde el menú
+            pushSnapshot();
 
             if (action === 'add') {
                 if (!collectionData[idx].obtained) { collectionData[idx].obtained = true; } 
@@ -609,7 +593,6 @@
 
         function setStatusFilter(type, btn) { currentFilter = type; document.querySelectorAll('#status-filter-container .filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); renderGrid(); }
 
-        // Mapeo limpio para listas de WhatsApp
         function updateTradeSection() {
             const txtRep = document.getElementById('trade-text'); const repeatedCards = collectionData.filter(c => c.copies > 0);
             if (repeatedCards.length === 0) { txtRep.value = "No tienes cartas repetidas registradas aún."; } 
@@ -624,7 +607,7 @@
 
         function copyTradeList() { const txt = document.getElementById('trade-text'); if (collectionData.filter(c => c.copies > 0).length === 0) return; txt.select(); navigator.clipboard.writeText(txt.value); alert("¡Lista de repetidas copiada! 🎀"); }
         function copyMissingList() { const txt = document.getElementById('missing-text'); if(txt.value.includes("¡Genial!")) return; txt.select(); navigator.clipboard.writeText(txt.value); alert("¡Lista de faltantes copiada! 🔍"); }
-        function exportCollection() { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ version: "11.1", startDate: startDate, cards: collectionData })); const dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "kitty_album_v11_backup.json"); document.body.appendChild(dl); dl.click(); dl.remove(); }
+        function exportCollection() { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ version: "11.3", startDate: startDate, cards: collectionData })); const dl = document.createElement('a'); dl.setAttribute("href", dataStr); dl.setAttribute("download", "kitty_album_v11_backup.json"); document.body.appendChild(dl); dl.click(); dl.remove(); }
         function triggerImport() { document.getElementById('file-input').click(); }
 
         function importCollection(e) {
@@ -640,7 +623,7 @@
         }
 
         function resetCollection() {
-            if (confirm("¿Vaciar el álbum?") && confirm("Esto borrará tus estampas marcadas de todas las colecciones. ¿Confirmar?")) {
+            if (confirm("¿Vaciar el álbum?")) {
                 localStorage.removeItem('hk_ultra_album_v10'); startDate = new Date().toISOString(); localStorage.setItem('hk_ultra_date_v10', startDate); recentChanges = []; undoStack = []; document.getElementById('btn-undo').classList.remove('active'); logRecentChange(""); generateInitialDatabase(); saveToStorage(); buildFilterButtons(); renderGrid(); updateDashboard(); calculateDays(); alert("Álbum limpio.");
             }
         }
